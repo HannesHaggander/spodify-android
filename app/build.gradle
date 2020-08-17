@@ -56,9 +56,13 @@ dependencies {
     implementation project(':spotify-app-remote-release-0.7.1')
     implementation "com.google.code.gson:gson:2.8.5"
 
+    // Lottie //
+    implementation "com.airbnb.android:lottie:$lottie_version"
+
     // Mockito //
     testImplementation "org.mockito:mockito-core:$mockito_version"
     testImplementation "io.mockk:mockk:$mockk_version"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutine_version"
+
 
 }
