@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.spotify.android.appremote.api.ConnectionParams
 import com.spotify.android.appremote.api.Connector
 import com.spotify.android.appremote.api.SpotifyAppRemote
@@ -35,12 +36,12 @@ class AuthenticationFragment : Fragment() {
         } else {
             connectToSpotify()
         }
-
     }
 
     private fun connectToSpotify() {
         ConnectionParams.Builder(getString(R.string.spotify_client_id))
             .showAuthView(true)
+            .setRedirectUri(getString(R.string.spodify_redirect_url))
             .build()
             .run {
                 SpotifyAppRemote.connect(
@@ -49,16 +50,14 @@ class AuthenticationFragment : Fragment() {
                     object : Connector.ConnectionListener {
                         override fun onFailure(error: Throwable?) {
                             Log.w(TAG, "onFailure: Failed to connect", error)
-
                         }
 
                         override fun onConnected(spotifyAppRemote: SpotifyAppRemote?) {
                             Log.d(TAG, "onConnected: Connected!")
+                            findNavController().navigate(R.id.nav_goto_home)
                         }
-
                     })
             }
-
-
     }
+
 }
