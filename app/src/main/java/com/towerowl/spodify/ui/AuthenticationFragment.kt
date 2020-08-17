@@ -11,6 +11,7 @@ import com.spotify.android.appremote.api.ConnectionParams
 import com.spotify.android.appremote.api.Connector
 import com.spotify.android.appremote.api.SpotifyAppRemote
 import com.towerowl.spodify.R
+import com.towerowl.spodify.misc.App
 import kotlinx.android.synthetic.main.fragment_authentication.*
 
 class AuthenticationFragment : Fragment() {
@@ -49,11 +50,13 @@ class AuthenticationFragment : Fragment() {
                     this,
                     object : Connector.ConnectionListener {
                         override fun onFailure(error: Throwable?) {
-                            Log.w(TAG, "onFailure: Failed to connect", error)
+                            Log.w(TAG, "Failed to connect", error)
                         }
 
                         override fun onConnected(spotifyAppRemote: SpotifyAppRemote?) {
-                            Log.d(TAG, "onConnected: Connected!")
+                            Log.d(TAG, "Connected!")
+                            App.instance().spotifyAppRemote = spotifyAppRemote
+                                ?: throw Exception("Missing Spotify app remote")
                             findNavController().navigate(R.id.nav_goto_home)
                         }
                     })
