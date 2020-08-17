@@ -88,4 +88,4 @@ lint/tmp/
 *.hprof
 
 # Secrets
-./secrets.xml
+app/src/main/res/values/secrets.xml
