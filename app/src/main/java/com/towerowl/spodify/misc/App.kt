@@ -30,7 +30,7 @@ class App : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        synchronized(this) { mInstance = this }
+        mInstance = this
         JodaTimeAndroid.init(this)
     }
 }

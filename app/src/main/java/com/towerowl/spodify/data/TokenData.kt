@@ -7,13 +7,17 @@ import org.joda.time.DateTime
 
 @Entity(tableName = "auth_data")
 data class TokenData(
-    @PrimaryKey val accessToken: String,
+    @PrimaryKey val id: String = ID,
+    val accessToken: String,
     val expiresAt: DateTime,
     val createdAt: DateTime = DateTime.now()
 ) {
     companion object {
+        private const val ID = "token"
+
         fun fromAuthenticationResponse(authenticationResponse: AuthenticationResponse): TokenData {
             return TokenData(
+                ID,
                 authenticationResponse.accessToken,
                 DateTime.now().plusSeconds(authenticationResponse.expiresIn),
                 DateTime.now()

@@ -70,6 +70,10 @@ class AuthenticationFragment : Fragment() {
                                         // found existing token
                                         withContext(Main) {
                                             if (isTokenValid()) {
+                                                App.instance()
+                                                    .repo
+                                                    .spotifyRepository()
+                                                    .setToken(accessToken)
                                                 findNavController().navigate(R.id.nav_goto_home)
                                             } else {
                                                 startLogin()

@@ -15,10 +15,6 @@ import kotlinx.coroutines.withContext
 
 class MainActivity : AppCompatActivity() {
 
-    companion object {
-        private const val TAG = "MainActivity"
-    }
-
     private val navController by lazy { findNavController(R.id.main_nav) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,6 +33,7 @@ class MainActivity : AppCompatActivity() {
                     onSuccess = { response ->
                         lifecycleScope.launch(IO) {
                             storeToken(TokenData.fromAuthenticationResponse(response))
+                            App.instance().repo.spotifyRepository().setToken(response.accessToken)
                             withContext(Main) { navController.navigate(R.id.nav_goto_home) }
                         }
                     },
