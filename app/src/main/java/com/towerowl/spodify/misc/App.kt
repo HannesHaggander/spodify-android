@@ -2,8 +2,8 @@ package com.towerowl.spodify.misc
 
 import android.app.Application
 import com.spotify.android.appremote.api.SpotifyAppRemote
-import com.towerowl.spodify.di.DaggerRepositoryComponent
-import com.towerowl.spodify.di.RepositoryComponent
+import com.towerowl.spodify.di.*
+import net.danlew.android.joda.JodaTimeAndroid
 
 class App : Application() {
 
@@ -11,13 +11,26 @@ class App : Application() {
         @Volatile
         private var mInstance: App? = null
 
-        fun instance(): App =
-            mInstance ?: synchronized(this) { mInstance ?: App().also { mInstance = it } }
+        fun instance(): App = mInstance ?: throw Exception("Instance not instantiated")
+    }
 
+    val repo: RepositoryComponent by lazy {
+        DaggerRepositoryComponent.builder()
+            .contextModule(ContextModule(this))
+            .build()
+    }
+
+    val viewModels: ViewModelsComponent by lazy {
+        DaggerViewModelsComponent.builder()
+            .contextModule(ContextModule(this))
+            .build()
     }
 
     lateinit var spotifyAppRemote: SpotifyAppRemote
 
-    val repo: RepositoryComponent by lazy { DaggerRepositoryComponent.create() }
-
+    override fun onCreate() {
+        super.onCreate()
+        synchronized(this) { mInstance = this }
+        JodaTimeAndroid.init(this)
+    }
 }

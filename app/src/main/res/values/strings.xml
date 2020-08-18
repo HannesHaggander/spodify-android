@@ -2,4 +2,7 @@
     <string name="app_name">Spodify</string>
     <string name="connecting">Connecting…</string>
     <string name="error_spotify_not_installed">To use %s, the Spotify app needs to be installed on your device.</string>
+    <string name="spotify_access_token">spotify-token-access</string>
+    <string name="spotify_token_expires">spotify-token-expires</string>
+
 </resources>
