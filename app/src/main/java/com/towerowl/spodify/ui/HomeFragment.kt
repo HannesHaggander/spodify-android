@@ -19,12 +19,11 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? = inflater.inflate(R.layout.fragment_home, container, false)
 
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         lifecycleScope.launch(IO) {
-            val token = App.instance().viewModels.authorizationViewModel().getToken()
+            App.instance().viewModels.authorizationViewModel().getToken()
         }
     }
 }

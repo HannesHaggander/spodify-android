@@ -36,7 +36,7 @@ class MainActivity : AppCompatActivity() {
                 handleAuthResponse(requestCode, resultCode, data,
                     onSuccess = { response ->
                         lifecycleScope.launch(IO) {
-                            storeToken(TokenData(response.accessToken, response.expiresIn))
+                            storeToken(TokenData.fromAuthenticationResponse(response))
                             withContext(Main) { navController.navigate(R.id.nav_goto_home) }
                         }
                     },

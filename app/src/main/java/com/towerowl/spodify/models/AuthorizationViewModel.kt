@@ -2,7 +2,6 @@ package com.towerowl.spodify.models
 
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModel
 import com.spotify.sdk.android.authentication.AuthenticationClient
@@ -52,7 +51,6 @@ class AuthorizationViewModel(private val context: Context) : ViewModel() {
                 }
 
                 AuthenticationResponse.Type.ERROR -> {
-                    Log.d(TAG, "onActivityResult: Failed authentication")
                     onError(Exception(this.error))
                     return
                 }
