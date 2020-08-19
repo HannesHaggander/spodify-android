@@ -1,5 +1,7 @@
 package com.towerowl.spodify.repositories
 
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import com.towerowl.spodify.data.api.Category
 import com.towerowl.spodify.data.api.UserData
 import okhttp3.Interceptor
@@ -7,7 +9,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Response
 import retrofit2.Call
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Path
 import java.util.*
@@ -60,7 +62,9 @@ class SpotifyRepository : ContentRetriever {
 
     override fun setToken(token: String) = Retrofit.Builder()
         .baseUrl(BASE_URL)
-        .addConverterFactory(GsonConverterFactory.create())
+        .addConverterFactory(
+            MoshiConverterFactory.create(Moshi.Builder().add(KotlinJsonAdapterFactory()).build())
+        )
         .client(okHttpClient(token))
         .build()
         .run { retrofit = this }
