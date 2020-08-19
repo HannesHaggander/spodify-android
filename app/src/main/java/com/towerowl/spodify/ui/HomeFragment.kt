@@ -24,12 +24,14 @@ class HomeFragment : Fragment() {
 
     private fun getContent() {
         try {
-            App.instance().repo.spotifyRepository().browse().categories("party")
-                .enqueue(onResponse = { call, response ->
+            App.instance().repo.spotifyRepository().userLibrary().shows().enqueue(
+                onResponse = { call, response ->
                     1
-                }, onFailure = { call, err ->
+                },
+                onFailure = { call, error ->
                     1
-                })
+                }
+            )
         } catch (e: Exception) {
             1
         }

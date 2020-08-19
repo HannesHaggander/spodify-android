@@ -2,16 +2,14 @@ package com.towerowl.spodify.repositories
 
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
-import com.towerowl.spodify.data.api.Category
-import com.towerowl.spodify.data.api.UserData
+import com.towerowl.spodify.repositories.requests.Browse
+import com.towerowl.spodify.repositories.requests.UserLibrary
+import com.towerowl.spodify.repositories.requests.UsersProfile
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
-import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
-import retrofit2.http.GET
-import retrofit2.http.Path
 import java.util.*
 
 interface ContentRetriever {
@@ -19,20 +17,9 @@ interface ContentRetriever {
 
     fun browse(): Browse
 
+    fun userLibrary(): UserLibrary
+
     fun setToken(token: String)
-}
-
-interface Browse {
-    @GET("browse/categories/{category_id}")
-    fun categories(@Path("category_id") categoryId: String): Call<Category>
-}
-
-interface UsersProfile {
-    @GET("me")
-    fun me(): Call<UserData>
-
-    @GET("users/{users_id}")
-    fun usersProfile(@Path("users_id") userId: String)
 }
 
 class SpotifyRepository : ContentRetriever {
@@ -56,9 +43,12 @@ class SpotifyRepository : ContentRetriever {
                 .run { chain.proceed(this) }
         }).build()
 
+
     override fun usersProfile(): UsersProfile = retrofit.create(UsersProfile::class.java)
 
     override fun browse(): Browse = retrofit.create(Browse::class.java)
+
+    override fun userLibrary(): UserLibrary = retrofit.create(UserLibrary::class.java)
 
     override fun setToken(token: String) = Retrofit.Builder()
         .baseUrl(BASE_URL)

@@ -33,8 +33,10 @@ class AuthenticationFragment : Fragment() {
 
         lifecycleScope.launch(IO) {
             with(App.instance().viewModels.authorizationViewModel()) {
-                if (getToken() == null) {
-                    spotifyLogin(requireActivity())
+                with(getToken()) {
+                    if (this == null || !isTokenValid()) {
+                        spotifyLogin(requireActivity())
+                    }
                 }
             }
         }

@@ -23,7 +23,7 @@ class AuthorizationViewModel(private val context: Context) : ViewModel() {
             context.getString(R.string.spotify_client_id),
             AuthenticationResponse.Type.TOKEN,
             context.getString(R.string.spodify_redirect_url)
-        ).setScopes(arrayOf("streaming"))
+        ).setScopes(arrayOf("streaming", "user-library-read"))
             .build()
             .run {
                 AuthenticationClient.openLoginActivity(
