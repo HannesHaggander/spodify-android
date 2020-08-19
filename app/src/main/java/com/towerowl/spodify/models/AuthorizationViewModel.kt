@@ -8,6 +8,7 @@ import com.spotify.sdk.android.authentication.AuthenticationClient
 import com.spotify.sdk.android.authentication.AuthenticationRequest
 import com.spotify.sdk.android.authentication.AuthenticationResponse
 import com.towerowl.spodify.R
+import com.towerowl.spodify.constants.Scopes
 import com.towerowl.spodify.data.TokenData
 import com.towerowl.spodify.misc.App
 
@@ -23,7 +24,7 @@ class AuthorizationViewModel(private val context: Context) : ViewModel() {
             context.getString(R.string.spotify_client_id),
             AuthenticationResponse.Type.TOKEN,
             context.getString(R.string.spodify_redirect_url)
-        ).setScopes(arrayOf("streaming", "user-library-read"))
+        ).setScopes(arrayOf(Scopes.STREAMING, Scopes.USER_LIBRARY_READ))
             .build()
             .run {
                 AuthenticationClient.openLoginActivity(
