@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -17,7 +18,15 @@ import kotlinx.android.synthetic.main.view_holder_show_item.view.*
 
 class HomeFragment : Fragment() {
 
-    private val showRecyclerAdapter: ShowRecyclerAdapter by lazy { ShowRecyclerAdapter() }
+    private val showRecyclerAdapter: ShowRecyclerAdapter by lazy {
+        ShowRecyclerAdapter { clicked ->
+            Toast.makeText(
+                requireContext(),
+                "Pressed: ${clicked.show.name}",
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -61,7 +70,8 @@ class HomeFragment : Fragment() {
     }
 }
 
-class ShowRecyclerAdapter() : RecyclerView.Adapter<ShowRecyclerViewModel>() {
+class ShowRecyclerAdapter(val onClick: (ShowDataItem) -> Unit) :
+    RecyclerView.Adapter<ShowRecyclerViewModel>() {
     var data = listOf<ShowDataItem>()
         set(value) {
             field = value
@@ -80,6 +90,7 @@ class ShowRecyclerAdapter() : RecyclerView.Adapter<ShowRecyclerViewModel>() {
                 .into(holder.itemView.show_item_image)
             holder.itemView.show_item_name.text = show.name
             holder.itemView.show_item_description.text = show.description
+            holder.itemView.setOnClickListener { onClick(this) }
         }
     }
 
