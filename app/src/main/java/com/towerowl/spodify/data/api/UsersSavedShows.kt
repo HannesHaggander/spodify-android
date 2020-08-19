@@ -11,11 +11,11 @@ data class UsersSavedShows(
     data class Item(
         @Json(name = "added_at")
         val addedAt: String,
-        val items: List<Show>,
-        val limit: Int,
+        val show: Show,
+        val limit: Int?,
         val next: Any?,
-        val ffset: Int,
-        val revious: Any?,
-        val otal: Int
+        val offset: Int?,
+        val previous: Any?,
+        val total: Int?
     )
 }

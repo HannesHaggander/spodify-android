@@ -22,6 +22,8 @@ data class Show(
     val mediaType: String,
     val name: String,
     val publisher: String,
+    @Json(name = "total_episodes")
+    val totalEpisodes: Int,
     val type: String,
     val uri: String
 )
