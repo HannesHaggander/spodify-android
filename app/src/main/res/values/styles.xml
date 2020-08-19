@@ -9,6 +9,7 @@
         <item name="android:navigationBarColor">@color/black</item>
         <item name="android:statusBarColor">@color/black</item>
         <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowBackground">@color/black</item>
     </style>
 
     <style name="spodify.text.base" parent="Widget.AppCompat.TextView">

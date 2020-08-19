@@ -21,8 +21,10 @@ interface RepositoryComponent {
 @Module
 class ContentModule {
 
+    private val spotifyRepository: SpotifyRepository by lazy { SpotifyRepository() }
+
     @Provides
-    fun provideContentRetriever(): ContentRetriever = SpotifyRepository()
+    fun provideContentRetriever(): ContentRetriever = spotifyRepository
 
     @Provides
     fun provideAuthenticationRepository(authenticationDao: AuthenticationDao): AuthenticationRepository =

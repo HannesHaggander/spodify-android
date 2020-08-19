@@ -1,5 +1,6 @@
 package com.towerowl.spodify.data
 
+import androidx.lifecycle.LiveData
 import androidx.room.*
 
 @Dao
@@ -12,4 +13,7 @@ interface AuthenticationDao {
 
     @Query("SELECT * FROM auth_data LIMIT 1")
     fun getStoredToken(): TokenData?
+
+    @Query("SELECT * FROM auth_data LIMIT 1")
+    fun liveTokenData(): LiveData<TokenData?>
 }

@@ -4,18 +4,17 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-fun <T> Call<T>.enqueue(onResponse: (T) -> Unit, onFailure: (Exception) -> Unit) {
-    try {
-        enqueue(object : Callback<T> {
-            override fun onResponse(call: Call<T>, response: Response<T>) {
-                response.body()?.run(onResponse) ?: onFailure(Exception("Missing body"))
-            }
+fun <T> Call<T>.enqueue(
+    onResponse: (Call<T>, Response<T>) -> Unit,
+    onFailure: (Call<T>, Exception) -> Unit
+) {
+    enqueue(object : Callback<T> {
+        override fun onResponse(call: Call<T>, response: Response<T>) {
+            onResponse(call, response)
+        }
 
-            override fun onFailure(call: Call<T>, t: Throwable) {
-                onFailure(Exception(t))
-            }
-        })
-    } catch (e: Exception) {
-        onFailure(e)
-    }
+        override fun onFailure(call: Call<T>, t: Throwable) {
+            onFailure(call, Exception(t))
+        }
+    })
 }
