@@ -15,14 +15,17 @@ class App : Application() {
         fun instance(): App = mInstance ?: throw Exception("Instance not instantiated")
     }
 
+    private val databaseModule by lazy { DatabaseModule(AppDatabase.create(this)) }
+
     val repo: RepositoryComponent by lazy {
         DaggerRepositoryComponent.builder()
-            .databaseModule(DatabaseModule(AppDatabase.create(this)))
+            .databaseModule(databaseModule)
             .build()
     }
 
     val viewModels: ViewModelsComponent by lazy {
         DaggerViewModelsComponent.builder()
+            .databaseModule(databaseModule)
             .contextModule(ContextModule(this))
             .build()
     }

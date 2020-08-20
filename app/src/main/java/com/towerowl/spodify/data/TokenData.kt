@@ -29,6 +29,6 @@ data class TokenData(
 
     fun isTokenValid(): Boolean = expiresAt.isAfterNow
 
-    fun isValid(): Boolean = isTokenValid() && accessToken.isNotEmpty() && id == ID
+    fun isDataValid(): Boolean = isTokenValid() && accessToken.isNotEmpty() && id == ID
 
 }

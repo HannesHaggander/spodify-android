@@ -1,4 +1,4 @@
-package com.towerowl.spodify
+package com.towerowl.spodify.instrumented
 
 import androidx.room.Room
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -58,8 +58,7 @@ class AuthenticationInstrumentedTests {
     fun getTokenVerifySaved() = runBlocking {
         val token = validToken()
 
-        // View model store token
-        // Verify data in database
+        // ensure that a valid token is saved to the database and that its the same upon retrieval
         with(mockViewModelsComponent()) {
             authorizationViewModel().storeToken(token)
             Assert.assertEquals(authorizationViewModel().getToken(), token)
@@ -75,6 +74,7 @@ class AuthenticationInstrumentedTests {
             expiresAt = DateTime.now()
         )
 
+        // as the token is faulty it should not be saved to the database
         with(mockViewModelsComponent()) {
             authorizationViewModel().storeToken(token)
             Assert.assertNull(authorizationViewModel().getToken())

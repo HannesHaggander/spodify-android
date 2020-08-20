@@ -1,9 +1,12 @@
 package com.towerowl.spodify.data.api
 
+import android.os.Parcelable
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
+import kotlinx.android.parcel.Parcelize
 
 @JsonClass(generateAdapter = true)
+@Parcelize
 data class Show(
     @Json(name = "available_markets")
     val availableMarkets: List<String>,
@@ -26,4 +29,4 @@ data class Show(
     val totalEpisodes: Int,
     val type: String,
     val uri: String
-)
+) : Parcelable

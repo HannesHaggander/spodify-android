@@ -4,5 +4,6 @@
     <string name="error_spotify_not_installed">To use %s, the Spotify app needs to be installed on your device.</string>
     <string name="spotify_access_token">spotify-token-access</string>
     <string name="spotify_token_expires">spotify-token-expires</string>
+    <string name="no_podcasts_found">No podcasts found...</string>
 
 </resources>

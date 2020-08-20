@@ -43,7 +43,6 @@ class SpotifyRepository : ContentRetriever {
                 .run { chain.proceed(this) }
         }).build()
 
-
     override fun usersProfile(): UsersProfile = retrofit.create(UsersProfile::class.java)
 
     override fun browse(): Browse = retrofit.create(Browse::class.java)

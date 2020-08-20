@@ -18,7 +18,6 @@ class AuthorizationViewModel(
 ) : ViewModel() {
 
     companion object {
-        private const val TAG = "AuthorizationViewModel"
         const val AUTHENTICATION_REQUEST_CODE = 1337
     }
 
@@ -69,7 +68,7 @@ class AuthorizationViewModel(
 
     // enforce restrictions on saving a valid token prior to inserting into database
     suspend fun storeToken(tokenData: TokenData) {
-        if (!tokenData.isValid()) return
+        if (!tokenData.isDataValid()) return
         authenticationRepository.insert(tokenData)
     }
 

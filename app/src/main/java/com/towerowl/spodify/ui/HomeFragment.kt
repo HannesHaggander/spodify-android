@@ -11,7 +11,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.towerowl.spodify.R
 import com.towerowl.spodify.data.api.Show
+import com.towerowl.spodify.ext.asVisibility
 import com.towerowl.spodify.ext.enqueue
+import com.towerowl.spodify.ext.setGone
+import com.towerowl.spodify.ext.setVisible
 import com.towerowl.spodify.misc.App
 import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.android.synthetic.main.view_holder_show_item.view.*
@@ -45,12 +48,17 @@ class HomeFragment : Fragment() {
     }
 
     private fun getContent() {
+        loadingStarted()
         App.instance().repo.spotifyRepository().userLibrary().shows().enqueue(
             onResponse = { call, response ->
                 showRecyclerAdapter.data = response.body()
                     ?.items
                     .orEmpty()
                     .map { ShowDataItem(it.show) }
+                    .also {
+                        home_no_shows_text.visibility = it.isEmpty().asVisibility()
+                        loadingFinished()
+                    }
             },
             onFailure = { call, error ->
                 1
@@ -67,6 +75,15 @@ class HomeFragment : Fragment() {
                 false
             )
         }
+    }
+
+    private fun loadingStarted() {
+        home_loading.setVisible()
+        home_no_shows_text.setGone()
+    }
+
+    private fun loadingFinished() {
+        home_loading.setGone()
     }
 }
 
