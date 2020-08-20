@@ -20,4 +20,13 @@
         <item name="android:textSize">30sp</item>
     </style>
 
+    <style name="spodify.text.regular" parent="spodify.text.base">
+
+    </style>
+
+    <style name="spodify.text.subtitle" parent="spodify.text.base">
+        <item name="android:textColor">@color/gray</item>
+    </style>
+
+
 </resources>
