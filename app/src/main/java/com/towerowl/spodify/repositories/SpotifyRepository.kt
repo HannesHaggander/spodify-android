@@ -3,6 +3,7 @@ package com.towerowl.spodify.repositories
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import com.towerowl.spodify.repositories.requests.Browse
+import com.towerowl.spodify.repositories.requests.Shows
 import com.towerowl.spodify.repositories.requests.UserLibrary
 import com.towerowl.spodify.repositories.requests.UsersProfile
 import okhttp3.Interceptor
@@ -19,7 +20,10 @@ interface ContentRetriever {
 
     fun userLibrary(): UserLibrary
 
+    fun shows(): Shows
+
     fun setToken(token: String)
+
 }
 
 class SpotifyRepository : ContentRetriever {
@@ -48,6 +52,8 @@ class SpotifyRepository : ContentRetriever {
     override fun browse(): Browse = retrofit.create(Browse::class.java)
 
     override fun userLibrary(): UserLibrary = retrofit.create(UserLibrary::class.java)
+
+    override fun shows(): Shows = retrofit.create(Shows::class.java)
 
     override fun setToken(token: String) = Retrofit.Builder()
         .baseUrl(BASE_URL)
