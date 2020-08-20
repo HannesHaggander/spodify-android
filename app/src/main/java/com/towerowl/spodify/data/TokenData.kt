@@ -13,7 +13,7 @@ data class TokenData(
     val createdAt: DateTime = DateTime.now()
 ) {
     companion object {
-        private const val ID = "token"
+        const val ID = "token"
 
         fun fromAuthenticationResponse(authenticationResponse: AuthenticationResponse): TokenData {
             return TokenData(
@@ -23,8 +23,12 @@ data class TokenData(
                 DateTime.now()
             )
         }
+
+
     }
 
     fun isTokenValid(): Boolean = expiresAt.isAfterNow
+
+    fun isValid(): Boolean = isTokenValid() && accessToken.isNotEmpty() && id == ID
 
 }

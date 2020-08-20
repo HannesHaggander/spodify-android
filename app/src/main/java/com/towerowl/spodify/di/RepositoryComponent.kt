@@ -9,7 +9,7 @@ import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
 
-@Component(modules = [ContentModule::class, DatabaseModule::class, ContextModule::class])
+@Component(modules = [ContentModule::class])
 interface RepositoryComponent {
     @Singleton
     fun spotifyRepository(): ContentRetriever
@@ -18,7 +18,7 @@ interface RepositoryComponent {
     fun authenticationRepository(): AuthenticationRepository
 }
 
-@Module
+@Module(includes = [DatabaseModule::class])
 class ContentModule {
 
     private val spotifyRepository: SpotifyRepository by lazy { SpotifyRepository() }
@@ -26,8 +26,14 @@ class ContentModule {
     @Provides
     fun provideContentRetriever(): ContentRetriever = spotifyRepository
 
+    @Volatile
+    private var authenticationRepository: AuthenticationRepository? = null
+
     @Provides
     fun provideAuthenticationRepository(authenticationDao: AuthenticationDao): AuthenticationRepository =
-        AuthenticationRepository(authenticationDao)
+        authenticationRepository ?: synchronized(this) {
+            authenticationRepository ?: AuthenticationRepository(authenticationDao)
+                .also { authenticationRepository = it }
+        }
 
 }

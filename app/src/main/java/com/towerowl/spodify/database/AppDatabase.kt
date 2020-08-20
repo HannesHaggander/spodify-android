@@ -1,9 +1,7 @@
 package com.towerowl.spodify.database
 
-import androidx.room.Database
-import androidx.room.RoomDatabase
-import androidx.room.TypeConverter
-import androidx.room.TypeConverters
+import android.content.Context
+import androidx.room.*
 import com.towerowl.spodify.data.AuthenticationDao
 import com.towerowl.spodify.data.TokenData
 import com.towerowl.spodify.ext.toUtc
@@ -18,6 +16,12 @@ import org.joda.time.DateTime
 abstract class AppDatabase : RoomDatabase() {
     companion object {
         const val DATABASE_NAME = "spodify-db"
+
+        fun create(context: Context) = Room.databaseBuilder(
+            context,
+            AppDatabase::class.java,
+            DATABASE_NAME
+        ).build()
     }
 
     abstract fun authenticationDao(): AuthenticationDao

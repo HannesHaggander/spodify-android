@@ -10,9 +10,12 @@ import com.spotify.sdk.android.authentication.AuthenticationResponse
 import com.towerowl.spodify.R
 import com.towerowl.spodify.constants.Scopes
 import com.towerowl.spodify.data.TokenData
-import com.towerowl.spodify.misc.App
+import com.towerowl.spodify.repositories.AuthenticationRepository
 
-class AuthorizationViewModel(private val context: Context) : ViewModel() {
+class AuthorizationViewModel(
+    private val context: Context,
+    private val authenticationRepository: AuthenticationRepository
+) : ViewModel() {
 
     companion object {
         private const val TAG = "AuthorizationViewModel"
@@ -64,14 +67,12 @@ class AuthorizationViewModel(private val context: Context) : ViewModel() {
         }
     }
 
-    suspend fun storeToken(tokenData: TokenData) = App.instance()
-        .repo
-        .authenticationRepository()
-        .insert(tokenData)
+    // enforce restrictions on saving a valid token prior to inserting into database
+    suspend fun storeToken(tokenData: TokenData) {
+        if (!tokenData.isValid()) return
+        authenticationRepository.insert(tokenData)
+    }
 
-    suspend fun getToken(): TokenData? = App.instance()
-        .repo
-        .authenticationRepository()
-        .getToken()
+    suspend fun getToken(): TokenData? = authenticationRepository.getToken()
 
 }

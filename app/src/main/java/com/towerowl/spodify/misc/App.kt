@@ -2,6 +2,7 @@ package com.towerowl.spodify.misc
 
 import android.app.Application
 import com.spotify.android.appremote.api.SpotifyAppRemote
+import com.towerowl.spodify.database.AppDatabase
 import com.towerowl.spodify.di.*
 import net.danlew.android.joda.JodaTimeAndroid
 
@@ -16,7 +17,7 @@ class App : Application() {
 
     val repo: RepositoryComponent by lazy {
         DaggerRepositoryComponent.builder()
-            .contextModule(ContextModule(this))
+            .databaseModule(DatabaseModule(AppDatabase.create(this)))
             .build()
     }
 
