@@ -23,7 +23,7 @@
 
     <fragment
         android:id="@+id/nav_podcast_detail"
-        android:name="com.towerowl.spodify.ui.PodcastDetailFragment">
+        android:name="com.towerowl.spodify.ui.ShowOverviewFragment">
         <action
             android:id="@+id/nav_podcast_detail_to_home"
             app:destination="@id/nav_home" />

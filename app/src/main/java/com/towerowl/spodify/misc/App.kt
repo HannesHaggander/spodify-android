@@ -17,18 +17,11 @@ class App : Application() {
 
     private val databaseModule by lazy { DatabaseModule(AppDatabase.create(this)) }
 
-    val repo: RepositoryComponent by lazy {
-        DaggerRepositoryComponent.builder()
-            .databaseModule(databaseModule)
-            .build()
-    }
+    lateinit var repo: RepositoryComponent
+        private set
 
-    val viewModels: ViewModelsComponent by lazy {
-        DaggerViewModelsComponent.builder()
-            .databaseModule(databaseModule)
-            .contextModule(ContextModule(this))
-            .build()
-    }
+    lateinit var viewModels: ViewModelsComponent
+        private set
 
     lateinit var spotifyAppRemote: SpotifyAppRemote
 
@@ -36,5 +29,24 @@ class App : Application() {
         super.onCreate()
         mInstance = this
         JodaTimeAndroid.init(this)
+        initiateDagger()
+    }
+
+    private fun initiateDagger() {
+        with(ContentModule()) {
+            DaggerViewModelsComponent.builder()
+                .databaseModule(databaseModule)
+                .contextModule(ContextModule(this@App))
+                .contentModule(this)
+                .build()
+                .run { viewModels = this }
+
+            DaggerRepositoryComponent.builder()
+                .databaseModule(databaseModule)
+                .contentModule(this)
+                .build()
+                .run { repo = this }
+        }
+
     }
 }

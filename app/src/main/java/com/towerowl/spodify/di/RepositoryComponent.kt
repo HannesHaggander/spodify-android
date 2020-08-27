@@ -18,22 +18,3 @@ interface RepositoryComponent {
     fun authenticationRepository(): AuthenticationRepository
 }
 
-@Module(includes = [DatabaseModule::class])
-class ContentModule {
-
-    private val spotifyRepository: SpotifyRepository by lazy { SpotifyRepository() }
-
-    @Provides
-    fun provideContentRetriever(): ContentRetriever = spotifyRepository
-
-    @Volatile
-    private var authenticationRepository: AuthenticationRepository? = null
-
-    @Provides
-    fun provideAuthenticationRepository(authenticationDao: AuthenticationDao): AuthenticationRepository =
-        authenticationRepository ?: synchronized(this) {
-            authenticationRepository ?: AuthenticationRepository(authenticationDao)
-                .also { authenticationRepository = it }
-        }
-
-}

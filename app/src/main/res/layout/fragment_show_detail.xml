@@ -12,14 +12,17 @@
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
             android:layout_width="match_parent"
-            android:layout_height="200dp"
+            android:layout_height="@dimen/show_detail_collapse_height"
+            android:background="@color/black"
             android:fitsSystemWindows="true"
+            android:paddingTop="@dimen/medium_padding"
+            android:paddingBottom="@dimen/medium_padding"
             app:contentScrim="@color/dark_foreground"
             app:expandedTitleGravity="center_horizontal|bottom"
             app:layout_scrollFlags="scroll|snap|exitUntilCollapsed">
 
             <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/podcast_detail_cover"
+                android:id="@+id/show_overview_cover"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="fitCenter"
@@ -30,7 +33,7 @@
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/podcast_detail_recycler"
+        android:id="@+id/show_overview_recycler"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior" />
