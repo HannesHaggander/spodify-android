@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -25,11 +24,11 @@ class ShowOverviewFragment : Fragment() {
 
     private val episodeAdapter: EpisodeAdapter by lazy {
         EpisodeAdapter(
-            onItemClick = {
-                Toast.makeText(requireContext(), "Pressed item", Toast.LENGTH_SHORT).show()
+            onItemClick = { episode ->
+                App.instance().spotifyAppRemote.playerApi.play(episode.uri)
             },
-            onPlayClick = {
-                Toast.makeText(requireContext(), "Pressed play", Toast.LENGTH_SHORT).show()
+            onPlayClick = { episode ->
+                App.instance().spotifyAppRemote.playerApi.play(episode.uri)
             }
         )
     }
