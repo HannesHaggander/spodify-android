@@ -1,8 +1,8 @@
 # Spodify 
-Podcast only focused app for Android retrieving podcasts from the Spotify backend
+Podcast focused application for Android, using podcasts found in Spotify.
 
 ## Spotify already has a podcast tab, why are you doing this? 
-I like to have my application functionality separated. I want to use Spotify for music and music only and use another application entirely for podcasts.
+Personally, I like applications to have one purpose. I use Spotify for music, and I would like a separate applications for podcasts from Spotify so I decided to develop it myself.
 
 ## The project doesn't compile 
 Most likely becuase the project is missing the secret.xml file containing the following resources: 
