@@ -13,17 +13,25 @@ import com.spotify.android.appremote.api.SpotifyAppRemote
 import com.spotify.protocol.types.PlayerState
 import com.towerowl.spodify.R
 import com.towerowl.spodify.data.TokenData
-import com.towerowl.spodify.ext.asVisibility
+import com.towerowl.spodify.ext.millisToSec
+import com.towerowl.spodify.ext.secondsToReadable
 import com.towerowl.spodify.misc.App
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers.Main
 
 class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "MainActivity"
     }
+
+    private var playbackTimerJob: Job? = null
+        set(value) {
+            field?.cancel("Another timer started")
+            field = value
+        }
 
     private val navController by lazy { findNavController(R.id.main_nav) }
 
@@ -121,10 +129,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onPlayerStateUpdate(playerState: PlayerState) {
+        playbackTimerJob?.cancel("Player state updated")
         with(playerState.track) {
-            main_currently_container.visibility = isPodcast.asVisibility()
             if (!isPodcast) return
-
             main_current_title.text = this.name
         }
 
@@ -142,8 +149,22 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        main_current_progress.max = (playerState.track.duration * 0.001).toInt()
-        main_current_progress.progress = (playerState.playbackPosition * 0.001).toInt()
-        Log.d(TAG, "onPlayerStateUpdate: Playerstate updated")
+        main_current_progress.max = (playerState.track.duration.millisToSec()).toInt()
+        main_current_progress.progress = (playerState.playbackPosition.millisToSec()).toInt()
+        if (playerState.isPaused) playbackTimerJob?.cancel("Paused")
+        else startPlaybackTimer()
+    }
+
+    private fun startPlaybackTimer() {
+        lifecycleScope.launch(IO) {
+            while (isActive) {
+                withContext(Main) {
+                    main_current_progress.progress += 1
+                    main_current_playback.text =
+                        "${main_current_progress.progress.secondsToReadable()}/${main_current_progress.max.secondsToReadable()}"
+                }
+                delay(1000)
+            }
+        }.also { playbackTimerJob = it }
     }
 }
