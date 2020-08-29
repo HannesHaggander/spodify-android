@@ -25,10 +25,10 @@ class ShowOverviewFragment : Fragment() {
     private val episodeAdapter: EpisodeAdapter by lazy {
         EpisodeAdapter(
             onItemClick = { episode ->
-                App.instance().spotifyAppRemote.playerApi.play(episode.uri)
+                App.instance().spotifyAppRemote?.playerApi?.play(episode.uri)
             },
             onPlayClick = { episode ->
-                App.instance().spotifyAppRemote.playerApi.play(episode.uri)
+                App.instance().spotifyAppRemote?.playerApi?.play(episode.uri)
             }
         )
     }

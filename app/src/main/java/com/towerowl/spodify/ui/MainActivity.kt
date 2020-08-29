@@ -2,15 +2,20 @@ package com.towerowl.spodify.ui
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import com.spotify.android.appremote.api.ConnectionParams
 import com.spotify.android.appremote.api.Connector
 import com.spotify.android.appremote.api.SpotifyAppRemote
+import com.spotify.protocol.types.PlayerState
 import com.towerowl.spodify.R
 import com.towerowl.spodify.data.TokenData
+import com.towerowl.spodify.ext.asVisibility
 import com.towerowl.spodify.misc.App
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 
@@ -25,7 +30,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        connectToSpotifyRemote()
         tokenObserver()
     }
 
@@ -46,6 +50,16 @@ class MainActivity : AppCompatActivity() {
                     }
                 )
             }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        connectToSpotifyRemote()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        App.instance().spotifyAppRemote?.run { SpotifyAppRemote.disconnect(this) }
     }
 
     private fun tokenObserver() {
@@ -89,14 +103,47 @@ class MainActivity : AppCompatActivity() {
                     this,
                     object : Connector.ConnectionListener {
                         override fun onFailure(error: Throwable?) {
+                            Log.w(
+                                TAG, "Failed to connect to spotify remote", Exception(error)
+                            )
                         }
 
                         override fun onConnected(spotifyAppRemote: SpotifyAppRemote?) {
                             spotifyAppRemote?.run {
                                 App.instance().spotifyAppRemote = this
+                                this.playerApi
+                                    .subscribeToPlayerState()
+                                    .setEventCallback { onPlayerStateUpdate(it) }
                             } ?: throw Exception("Missing Spotify app remote")
                         }
                     })
             }
+    }
+
+    private fun onPlayerStateUpdate(playerState: PlayerState) {
+        with(playerState.track) {
+            main_currently_container.visibility = isPodcast.asVisibility()
+            if (!isPodcast) return
+
+            main_current_title.text = this.name
+        }
+
+        main_currently_media_control.setImageDrawable(
+            ContextCompat.getDrawable(
+                this,
+                if (playerState.isPaused) R.drawable.ic_play else R.drawable.ic_pause
+            )
+        )
+
+        main_currently_media_control.setOnClickListener {
+            App.instance().spotifyAppRemote?.run {
+                if (playerState.isPaused) this.playerApi.resume()
+                else this.playerApi.pause()
+            }
+        }
+
+        main_current_progress.max = (playerState.track.duration * 0.001).toInt()
+        main_current_progress.progress = (playerState.playbackPosition * 0.001).toInt()
+        Log.d(TAG, "onPlayerStateUpdate: Playerstate updated")
     }
 }

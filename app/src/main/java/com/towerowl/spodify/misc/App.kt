@@ -23,7 +23,7 @@ class App : Application() {
     lateinit var viewModels: ViewModelsComponent
         private set
 
-    lateinit var spotifyAppRemote: SpotifyAppRemote
+    var spotifyAppRemote: SpotifyAppRemote? = null
 
     override fun onCreate() {
         super.onCreate()

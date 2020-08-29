@@ -11,7 +11,6 @@ import okhttp3.OkHttpClient
 import okhttp3.Response
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
-import java.util.*
 
 interface ContentRetriever {
     fun usersProfile(): UsersProfile
@@ -27,8 +26,6 @@ interface ContentRetriever {
 }
 
 class SpotifyRepository : ContentRetriever {
-
-    val id = UUID.randomUUID()
 
     companion object {
         const val AUTHORIZATION = "Authorization"
