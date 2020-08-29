@@ -16,6 +16,10 @@ import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
+    companion object {
+        private const val TAG = "MainActivity"
+    }
+
     private val navController by lazy { findNavController(R.id.main_nav) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,10 +66,16 @@ class MainActivity : AppCompatActivity() {
                 lifecycleScope.launch(IO) {
                     App.instance().repo.spotifyRepository().setToken(token.accessToken)
                     if (navController.currentDestination?.id != R.id.nav_home) {
-                        navController.navigate(R.id.nav_goto_home)
+                        navController.navigate(R.id.action_nav_auth_to_nav_home)
                     }
                 }
             })
+    }
+
+    override fun onBackPressed() {
+        if (!navController.popBackStack()) {
+            super.onBackPressed()
+        }
     }
 
     private fun connectToSpotifyRemote() {

@@ -26,7 +26,7 @@ class HomeFragment : Fragment() {
     private val showRecyclerAdapter: ShowRecyclerAdapter by lazy {
         ShowRecyclerAdapter { clicked ->
             findNavController().navigate(
-                R.id.nav_home_to_podcast_detail,
+                R.id.action_nav_home_to_nav_podcast_detail,
                 bundleOf(Show::class.java.simpleName to clicked.show)
             )
         }

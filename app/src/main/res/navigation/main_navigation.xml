@@ -8,25 +8,23 @@
         android:id="@+id/nav_auth"
         android:name="com.towerowl.spodify.ui.AuthenticationFragment">
         <action
-            android:id="@+id/nav_goto_home"
-            app:destination="@id/nav_home" />
+            android:id="@+id/action_nav_auth_to_nav_home"
+            app:destination="@id/nav_home"
+            app:launchSingleTop="true"
+            app:popUpTo="@id/main_navigation"
+            app:popUpToInclusive="true" />
     </fragment>
 
     <fragment
         android:id="@+id/nav_home"
         android:name="com.towerowl.spodify.ui.HomeFragment">
         <action
-            android:id="@+id/nav_home_to_podcast_detail"
+            android:id="@+id/action_nav_home_to_nav_podcast_detail"
             app:destination="@id/nav_podcast_detail" />
-
     </fragment>
 
     <fragment
         android:id="@+id/nav_podcast_detail"
-        android:name="com.towerowl.spodify.ui.ShowOverviewFragment">
-        <action
-            android:id="@+id/nav_podcast_detail_to_home"
-            app:destination="@id/nav_home" />
-    </fragment>
+        android:name="com.towerowl.spodify.ui.ShowOverviewFragment" />
 
 </navigation>
