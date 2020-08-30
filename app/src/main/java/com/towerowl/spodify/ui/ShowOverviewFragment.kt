@@ -4,13 +4,17 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.spotify.protocol.client.Subscription
+import com.spotify.protocol.types.PlayerState
 import com.towerowl.spodify.R
 import com.towerowl.spodify.data.api.Episode
 import com.towerowl.spodify.data.api.Show
+import com.towerowl.spodify.ext.asVisibility
 import com.towerowl.spodify.misc.App
 import kotlinx.android.synthetic.main.fragment_show_detail.*
 import kotlinx.android.synthetic.main.view_holder_episode_item.view.*
@@ -32,6 +36,12 @@ class ShowOverviewFragment : Fragment() {
         arguments?.getParcelable<Show>(Show::class.java.simpleName) ?: throw Exception()
     }
 
+    private var playerStateSubscription: Subscription<PlayerState>? = null
+        set(value) {
+            field?.cancel()
+            field = value
+        }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -42,11 +52,21 @@ class ShowOverviewFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         Glide.with(this).load(show.images.first().url).into(show_overview_cover)
         setupRecycler()
-        registerObserver()
+        registerEpisodesObserver()
         App.instance().viewModels.showViewModel().run {
             clearEpisodes()
             getShowEpisodes(show.id)
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        registerPlayStateObserver()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        playerStateSubscription?.cancel()
     }
 
     private fun setupRecycler() {
@@ -74,9 +94,17 @@ class ShowOverviewFragment : Fragment() {
         }
     }
 
-    private fun registerObserver() {
+    private fun registerEpisodesObserver() {
         App.instance().viewModels.showViewModel().episodes.observe(viewLifecycleOwner) { shows ->
             episodeAdapter.data = shows.toMutableList()
+        }
+    }
+
+    private fun registerPlayStateObserver() {
+        App.instance().spotifyAppRemote?.run {
+            playerApi.subscribeToPlayerState().setEventCallback { state ->
+                episodeAdapter.currentlyPlaying = state.track.uri
+            }.also { playerStateSubscription = it }
         }
     }
 
@@ -85,17 +113,27 @@ class ShowOverviewFragment : Fragment() {
         private val onPlayClick: (Episode) -> Unit
     ) : RecyclerView.Adapter<EpisodeViewHolder>() {
 
+        var currentlyPlaying: String? = null
+            set(value) {
+                field?.run {
+                    data.indexOfFirst { episode -> episode.uri == this }.also { index ->
+                        if (index < 0) return@run
+                        notifyItemChanged(index)
+                    }
+                }
+                data.indexOfFirst { episode -> episode.uri == value }.also { index ->
+                    if (index < 0) return@also
+                    notifyItemChanged(index)
+                }
+                field = value
+            }
+
         var data: MutableList<Episode> = mutableListOf()
             set(value) {
                 value.sortByDescending { it.releaseDate }
                 field = value
                 notifyDataSetChanged()
             }
-
-        fun addData(items: List<Episode>) {
-            data.addAll(items)
-            notifyItemRangeInserted(data.size - items.size, items.size)
-        }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EpisodeViewHolder {
             LayoutInflater.from(parent.context)
@@ -109,6 +147,12 @@ class ShowOverviewFragment : Fragment() {
                     v.view_holder_episode_release_date.text = releaseDate
                     v.view_holder_episode_name.text = name
                     v.view_holder_episode_description.text = description
+                    ContextCompat.getColor(
+                        requireContext(),
+                        if (currentlyPlaying == this.uri) R.color.colorPrimary else R.color.white
+                    ).also { color -> v.view_holder_episode_name.setTextColor(color) }
+                    v.view_holder_episode_playing.visibility =
+                        (currentlyPlaying == this.uri).asVisibility()
                     v.view_holder_episode_play_pause.setOnClickListener { onPlayClick(this) }
                     v.setOnClickListener { onItemClick(this) }
                 }
@@ -120,5 +164,4 @@ class ShowOverviewFragment : Fragment() {
     }
 
     inner class EpisodeViewHolder(v: View) : RecyclerView.ViewHolder(v)
-
 }

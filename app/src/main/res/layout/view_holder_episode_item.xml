@@ -58,4 +58,12 @@
 
     </androidx.appcompat.widget.LinearLayoutCompat>
 
+    <View
+        android:id="@+id/view_holder_episode_playing"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@color/colorPrimary"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
