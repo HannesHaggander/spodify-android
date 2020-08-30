@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -15,10 +14,6 @@ import com.towerowl.spodify.data.api.Show
 import com.towerowl.spodify.misc.App
 import kotlinx.android.synthetic.main.fragment_show_detail.*
 import kotlinx.android.synthetic.main.view_holder_episode_item.view.*
-import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class ShowOverviewFragment : Fragment() {
 
@@ -33,21 +28,25 @@ class ShowOverviewFragment : Fragment() {
         )
     }
 
+    private val show: Show by lazy {
+        arguments?.getParcelable<Show>(Show::class.java.simpleName) ?: throw Exception()
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? = inflater.inflate(R.layout.fragment_show_detail, container, false)
 
-    private val show: Show by lazy {
-        arguments?.getParcelable<Show>(Show::class.java.simpleName) ?: throw Exception()
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         Glide.with(this).load(show.images.first().url).into(show_overview_cover)
         setupRecycler()
         registerObserver()
+        App.instance().viewModels.showViewModel().run {
+            clearEpisodes()
+            getShowEpisodes(show.id)
+        }
     }
 
     private fun setupRecycler() {
@@ -58,22 +57,26 @@ class ShowOverviewFragment : Fragment() {
                 LinearLayoutManager.VERTICAL,
                 false
             )
+
+            addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                    super.onScrollStateChanged(recyclerView, newState)
+                    if (!recyclerView.canScrollVertically(1)
+                        && newState == RecyclerView.SCROLL_STATE_IDLE
+                    ) {
+                        App.instance()
+                            .viewModels
+                            .showViewModel()
+                            .getShowEpisodes(show.id, episodeAdapter.itemCount)
+                    }
+                }
+            })
         }
     }
 
     private fun registerObserver() {
-        lifecycleScope.launch(IO) {
-            App.instance()
-                .viewModels
-                .showViewModel()
-                .getShowEpisodes(show.id)
-                .run {
-                    withContext(Main) {
-                        observe(viewLifecycleOwner, { shows ->
-                            episodeAdapter.data = shows.items
-                        })
-                    }
-                }
+        App.instance().viewModels.showViewModel().episodes.observe(viewLifecycleOwner) { shows ->
+            episodeAdapter.data = shows.toMutableList()
         }
     }
 
@@ -82,11 +85,17 @@ class ShowOverviewFragment : Fragment() {
         private val onPlayClick: (Episode) -> Unit
     ) : RecyclerView.Adapter<EpisodeViewHolder>() {
 
-        var data: List<Episode> = listOf()
+        var data: MutableList<Episode> = mutableListOf()
             set(value) {
-                field = value.sortedByDescending { it.releaseDate }
+                value.sortByDescending { it.releaseDate }
+                field = value
                 notifyDataSetChanged()
             }
+
+        fun addData(items: List<Episode>) {
+            data.addAll(items)
+            notifyItemRangeInserted(data.size - items.size, items.size)
+        }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EpisodeViewHolder {
             LayoutInflater.from(parent.context)

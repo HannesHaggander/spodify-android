@@ -1,56 +1,46 @@
 package com.towerowl.spodify.models
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.towerowl.spodify.data.api.ShowEpisodes
+import com.towerowl.spodify.data.api.Episode
 import com.towerowl.spodify.ext.enqueue
 import com.towerowl.spodify.repositories.ContentRetriever
-import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.launch
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
+import com.towerowl.spodify.repositories.requests.Shows
 
 class ShowViewModel(private val contentRetriever: ContentRetriever) : ViewModel() {
 
-    private val showDataMap = MutableLiveData<MutableMap<String, MutableLiveData<ShowEpisodes>>>()
-        get() {
-            if (field.value == null) synchronized(this) {
-                viewModelScope.launch(Main) {
-                    field.value = mutableMapOf()
-                }
-            }
-            return field
-        }
+    companion object {
+        private const val TAG = "ShowViewModel"
+    }
 
-    suspend fun getShowEpisodes(showId: String) = suspendCoroutine<LiveData<ShowEpisodes>> { s ->
-        if (showId.isEmpty()) {
-            s.resumeWithException(Exception("Show id can not be empty"))
-            return@suspendCoroutine
-        }
+    private val mEpisodes = MutableLiveData<List<Episode>>()
+    val episodes: LiveData<List<Episode>> get() = mEpisodes
 
-        showDataMap.value?.get(showId)?.run {
-            s.resume(this)
-            return@suspendCoroutine
-        }
+    fun clearEpisodes() {
+        mEpisodes.postValue(listOf())
+    }
 
-        contentRetriever.shows().shows(showId).enqueue(
-            onResponse = { _, request ->
-                request.body()?.also { shows ->
-                    showDataMap.value?.run {
-                        with(MutableLiveData(shows)) {
-                            this@run[showId] = this
-                            s.resume(this)
+    fun getShowEpisodes(showId: String, offset: Int = 0) {
+        contentRetriever.shows()
+            .shows(
+                showId,
+                mapOf(Shows.QUERY_LIMIT_DEFAULT, Shows.QUERY_OFFSET to offset.toString())
+            ).enqueue(
+                onResponse = { c, request ->
+                    request.body()?.also { shows ->
+                        if (mEpisodes.value == null) {
+                            mEpisodes.postValue(shows.items.toMutableList())
+                        } else {
+                            mEpisodes.postValue(mEpisodes.value?.plus(shows.items))
                         }
-                    }
-                } ?: s.resumeWithException(Exception("Failed to get spotify show id"))
-            },
-            onFailure = { _, err ->
-                s.resumeWithException(err)
-            }
-        )
+                    } ?: Log.w(TAG, "getShowEpisodes: Missing body from request")
+                },
+                onFailure = { c, err ->
+                    Log.w(TAG, "getShowEpisodes: Failed to get episodes", Exception(err))
+                }
+            )
     }
 
 }
