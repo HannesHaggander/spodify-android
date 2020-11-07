@@ -2,10 +2,10 @@ package com.towerowl.spodify.di
 
 import android.content.Context
 import com.towerowl.spodify.models.AuthorizationViewModel
+import com.towerowl.spodify.models.SearchViewModel
 import com.towerowl.spodify.models.ShowViewModel
 import com.towerowl.spodify.repositories.AuthenticationRepository
 import com.towerowl.spodify.repositories.ContentRetriever
-import com.towerowl.spodify.repositories.SpotifyRepository
 import dagger.Component
 import dagger.Module
 import dagger.Provides
@@ -18,6 +18,9 @@ interface ViewModelsComponent {
 
     @Singleton
     fun showViewModel(): ShowViewModel
+
+    @Singleton
+    fun searchViewModel(): SearchViewModel
 }
 
 @Module(includes = [ContextModule::class, ContentModule::class])
@@ -42,4 +45,12 @@ class ViewModelsModule {
     fun provideShowViewModel(contentRetriever: ContentRetriever): ShowViewModel =
         showViewModel ?: ShowViewModel(contentRetriever).also { showViewModel = it }
 
+    @Volatile
+    private var searchViewModel: SearchViewModel? = null
+
+    @Provides
+    fun provideSearchViewModel(contentRetriever: ContentRetriever): SearchViewModel =
+        searchViewModel ?: synchronized(this) {
+            searchViewModel ?: SearchViewModel(contentRetriever).also { searchViewModel = it }
+        }
 }

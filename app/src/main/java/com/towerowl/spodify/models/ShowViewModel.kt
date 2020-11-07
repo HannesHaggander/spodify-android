@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import com.towerowl.spodify.data.api.Episode
 import com.towerowl.spodify.ext.enqueue
 import com.towerowl.spodify.repositories.ContentRetriever
+import com.towerowl.spodify.repositories.requests.Search
 import com.towerowl.spodify.repositories.requests.Shows
 
 class ShowViewModel(private val contentRetriever: ContentRetriever) : ViewModel() {
