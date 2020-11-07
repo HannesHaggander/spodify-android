@@ -3,6 +3,7 @@ package com.towerowl.spodify.ui
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
@@ -54,6 +55,11 @@ class MainActivity : AppCompatActivity() {
                         }
                     },
                     onError = {
+                        Toast.makeText(
+                            this,
+                            R.string.failed_to_authenticate,
+                            Toast.LENGTH_LONG
+                        ).show()
                         //todo
                     }
                 )

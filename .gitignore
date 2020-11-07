@@ -88,4 +88,6 @@ lint/tmp/
 *.hprof
 
 # Secrets
-app/src/main/res/values/secrets.xml
+/app/src/main/res/values/secrets.xml
+/keystore.properties
+/app/spodify-keystore
