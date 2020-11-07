@@ -5,5 +5,8 @@
     <string name="spotify_access_token">spotify-token-access</string>
     <string name="spotify_token_expires">spotify-token-expires</string>
     <string name="no_podcasts_found">No podcasts found...</string>
-    <string name="failed_to_authenticate">Internal error: Failed to authenticate, </string>
+    <string name="failed_to_authenticate">Internal error: Failed to authenticate</string>
+    <string name="title_home">Home</string>
+    <string name="title_search">Search</string>
+    <string name="title_queue">Queue</string>
 </resources>

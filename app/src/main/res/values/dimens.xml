@@ -14,4 +14,6 @@
     <dimen name="show_detail_collapse_height">260dp</dimen>
     <dimen name="medium_corner_radius">20dp</dimen>
     <dimen name="progress_height">6dp</dimen>
+    <dimen name="navigation_height">50dp</dimen>
+    <dimen name="divider_height">2dp</dimen>
 </resources>

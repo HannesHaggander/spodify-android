@@ -6,15 +6,30 @@
     android:layout_height="match_parent"
     tools:context=".ui.MainActivity">
 
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/main_bottom_navigation"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/navigation_height"
+        android:background="@color/navigation_color"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:menu="@menu/navigation_items" />
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/main_currently_container"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:background="@drawable/rounded_top"
-        android:backgroundTint="@color/colorPrimaryDark"
+        android:background="@color/navigation_color"
         android:backgroundTintMode="src_atop"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/main_bottom_navigation"
         app:layout_constraintHeight_percent="0.1">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/divider_height"
+            android:background="@color/colorPrimaryDark"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/main_currently_media_control"

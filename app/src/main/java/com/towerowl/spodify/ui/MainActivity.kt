@@ -3,17 +3,20 @@ package com.towerowl.spodify.ui
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.observe
+import androidx.navigation.NavDestination
 import androidx.navigation.findNavController
+import androidx.navigation.ui.setupWithNavController
 import com.spotify.android.appremote.api.ConnectionParams
 import com.spotify.android.appremote.api.Connector
 import com.spotify.android.appremote.api.SpotifyAppRemote
 import com.spotify.protocol.types.PlayerState
 import com.towerowl.spodify.R
 import com.towerowl.spodify.data.TokenData
+import com.towerowl.spodify.ext.asVisibility
 import com.towerowl.spodify.ext.millisToSec
 import com.towerowl.spodify.ext.secondsToReadable
 import com.towerowl.spodify.misc.App
@@ -24,22 +27,32 @@ import kotlinx.coroutines.Dispatchers.Main
 
 class MainActivity : AppCompatActivity() {
 
-    companion object {
-        private const val TAG = "MainActivity"
-    }
-
     private var playbackTimerJob: Job? = null
         set(value) {
             field?.cancel("Another timer started")
             field = value
         }
 
-    private val navController by lazy { findNavController(R.id.main_nav) }
+    private var previousNavigation: NavDestination? = null
+
+    private val mainNavController by lazy { findNavController(R.id.main_nav) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         tokenObserver()
+        setupAppNavigation()
+    }
+
+    private fun setupAppNavigation() {
+        main_bottom_navigation.setupWithNavController(mainNavController)
+        mainNavController.addOnDestinationChangedListener { navController, destination, _ ->
+            if (previousNavigation?.id == destination.id) return@addOnDestinationChangedListener
+            lifecycleScope.launch(Main) {
+                main_bottom_navigation.visibility = (destination.id != R.id.nav_auth).asVisibility()
+            }
+            previousNavigation = navController.currentDestination
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -55,11 +68,6 @@ class MainActivity : AppCompatActivity() {
                         }
                     },
                     onError = {
-                        Toast.makeText(
-                            this,
-                            R.string.failed_to_authenticate,
-                            Toast.LENGTH_LONG
-                        ).show()
                         //todo
                     }
                 )
@@ -81,11 +89,11 @@ class MainActivity : AppCompatActivity() {
             .repo
             .authenticationRepository()
             .getTokenLiveData()
-            .observe(this, { token ->
+            .observe(this) { token ->
                 if (token == null || !token.isTokenValid()) {
                     //token missing from database go and authenticate
-                    if (navController.currentDestination?.id != R.id.nav_auth) {
-                        navController.navigate(R.id.nav_auth)
+                    if (mainNavController.currentDestination?.id != R.id.nav_auth) {
+                        mainNavController.navigate(R.id.nav_auth)
                     }
                     return@observe
                 }
@@ -93,15 +101,15 @@ class MainActivity : AppCompatActivity() {
                 // token is OK to use for retrieving data
                 lifecycleScope.launch(IO) {
                     App.instance().repo.spotifyRepository().setToken(token.accessToken)
-                    if (navController.currentDestination?.id != R.id.nav_home) {
-                        navController.navigate(R.id.action_nav_auth_to_nav_home)
+                    if (mainNavController.currentDestination?.id != R.id.nav_home) {
+                        mainNavController.navigate(R.id.action_nav_auth_to_nav_home)
                     }
                 }
-            })
+            }
     }
 
     override fun onBackPressed() {
-        if (!navController.popBackStack()) {
+        if (!mainNavController.popBackStack()) {
             super.onBackPressed()
         }
     }
@@ -137,6 +145,7 @@ class MainActivity : AppCompatActivity() {
     private fun onPlayerStateUpdate(playerState: PlayerState) {
         playbackTimerJob?.cancel("Player state updated")
         with(playerState.track) {
+            main_currently_container.visibility = isPodcast.asVisibility()
             if (!isPodcast) return
             main_current_title.text = this.name
         }
@@ -172,5 +181,9 @@ class MainActivity : AppCompatActivity() {
                 delay(1000)
             }
         }.also { playbackTimerJob = it }
+    }
+
+    companion object {
+        private const val TAG = "MainActivity"
     }
 }
