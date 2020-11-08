@@ -1,5 +1,6 @@
 package com.towerowl.spodify.ui
 
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +12,7 @@ import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.request.RequestOptions
+import com.spotify.protocol.client.CallResult
 import com.spotify.protocol.types.PlayerState
 import com.towerowl.spodify.R
 import com.towerowl.spodify.ext.millisToSec
@@ -39,10 +41,25 @@ class PlayerDetailFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        updateImage()
         App.instance().spotifyAppRemote
             ?.playerApi
             ?.subscribeToPlayerState()
             ?.setEventCallback { onPlayerStateUpdated(it) }
+    }
+
+    private fun updateImage() {
+        App.instance().spotifyAppRemote?.run {
+            playerApi.playerState?.setResultCallback { result ->
+                imagesApi.getImage(result.track.imageUri)?.run {
+                    setResultCallback { img ->
+                        img?.run {
+                            Glide.with(requireView()).load(this).into(player_detail_image)
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private fun onPlayerStateUpdated(playerState: PlayerState) {
@@ -61,10 +78,6 @@ class PlayerDetailFragment : Fragment() {
             App.instance().spotifyAppRemote?.playerApi?.run {
                 if (playerState.isPaused) resume() else pause()
             }
-        }
-
-        playerState.track.imageUri.toString().run {
-            Glide.with(requireView()).load(this).into(player_detail_image)
         }
 
         player_detail_total_time.text =
