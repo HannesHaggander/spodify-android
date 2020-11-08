@@ -1,19 +1,19 @@
 package com.towerowl.spodify.ui
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.observe
-import androidx.navigation.fragment.DialogFragmentNavigatorDestinationBuilder
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.towerowl.spodify.R
-import com.towerowl.spodify.data.api.SearchResults
+import com.towerowl.spodify.data.api.Show
 import com.towerowl.spodify.misc.App
 import kotlinx.android.synthetic.main.fragment_search.*
 import kotlinx.android.synthetic.main.view_holder_search_episode.view.*
@@ -23,9 +23,7 @@ import kotlinx.android.synthetic.main.view_holder_search_title.view.*
 class SearchFragment : Fragment() {
 
     private val resultsAdapter by lazy {
-        SearchResultsAdapter {
-            Log.d(TAG, "On item click: Pressed item: $it")
-        }
+        SearchResultsAdapter { onSearchResultClicked(it) }
     }
 
     override fun onCreateView(
@@ -39,6 +37,19 @@ class SearchFragment : Fragment() {
         setupSearchResultsListener()
         setupRecycler()
         setupSearch()
+    }
+
+    private fun onSearchResultClicked(item: SearchResultsItem) {
+        when (item.type) {
+            SearchType.SHOW -> findNavController().navigate(
+                R.id.action_nav_search_to_nav_podcast_detail,
+                bundleOf(Show::class.java.simpleName to (item.blob as Show))
+            )
+            SearchType.EPISODE -> App.instance().spotifyAppRemote?.playerApi?.play(item.uri)
+            SearchType.TITLE -> {
+                //ignore
+            }
+        }
     }
 
     private fun setupSearch() {
@@ -77,10 +88,11 @@ class SearchFragment : Fragment() {
                 mutableListOf<SearchResultsItem>().apply {
                     results.shows?.items?.map { show ->
                         SearchResultsItem(
-                            href = show.href,
+                            uri = show.uri,
                             title = show.name,
                             imageUrl = show.images.firstOrNull()?.url,
-                            type = SearchType.SHOW
+                            type = SearchType.SHOW,
+                            blob = show
                         )
                     }.orEmpty().also { shows ->
                         if (shows.isEmpty()) return@also
@@ -92,10 +104,11 @@ class SearchFragment : Fragment() {
                     }
                     results.episodes?.items?.map { episode ->
                         SearchResultsItem(
-                            href = episode.href,
+                            uri = episode.uri,
                             title = episode.name,
                             imageUrl = episode.images.firstOrNull()?.url,
-                            type = SearchType.EPISODE
+                            type = SearchType.EPISODE,
+                            blob = episode
                         )
                     }.orEmpty().also { episodes ->
                         if (episodes.isEmpty()) return@also
@@ -184,10 +197,11 @@ class SearchResultEpisodeViewHolder(v: View) : RecyclerView.ViewHolder(v) {
 class SearchResultsTitle(v: View) : RecyclerView.ViewHolder(v)
 
 data class SearchResultsItem(
-    val href: String = "",
+    val uri: String = "",
     val title: String,
     val imageUrl: String? = null,
-    val type: SearchType
+    val type: SearchType,
+    var blob: Any? = null
 )
 
 enum class SearchType {
