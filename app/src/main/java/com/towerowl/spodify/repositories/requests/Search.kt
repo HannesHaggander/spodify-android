@@ -18,7 +18,7 @@ interface Search {
         const val QUERY_INCLUDE_EXTERNAL = "include_external"
 
         val QUERY_TYPE_DEFAULT = QUERY_TYPE to "show,episode"
-        val QUERY_LIMIT_DEFAULT = QUERY_LIMIT to "2"
+        val QUERY_LIMIT_DEFAULT = QUERY_LIMIT to "5"
         val QUERY_OFFSET_DEFAULT = QUERY_OFFSET to "0"
     }
 }

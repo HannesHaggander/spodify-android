@@ -1,6 +1,8 @@
 package com.towerowl.spodify.models
 
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.towerowl.spodify.data.api.SearchResults
 import com.towerowl.spodify.ext.enqueue
@@ -9,6 +11,8 @@ import com.towerowl.spodify.repositories.requests.Search
 import retrofit2.Call
 
 class SearchViewModel(private val contentRetriever: ContentRetriever) : ViewModel() {
+    private val _searchResults = MutableLiveData<SearchResults>()
+    val searchResults: LiveData<SearchResults> get() = _searchResults
     private var searchCall: Call<SearchResults>? = null
         set(value) {
             field?.cancel()
@@ -27,7 +31,9 @@ class SearchViewModel(private val contentRetriever: ContentRetriever) : ViewMode
             searchCall = it
         }.enqueue(
             onResponse = { call, response ->
-                TODO("Handle return value")
+                if (response.isSuccessful) {
+                    response.body()?.run { _searchResults.postValue(this) }
+                }
             },
             onFailure = { call, exception ->
                 Log.w(TAG, "search: Failed to get search results", exception)
