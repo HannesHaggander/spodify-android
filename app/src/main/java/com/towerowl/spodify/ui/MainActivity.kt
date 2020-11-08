@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import androidx.navigation.NavDestination
@@ -42,6 +43,9 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         tokenObserver()
         setupAppNavigation()
+        main_progress_container.setOnClickListener {
+            mainNavController.navigate(R.id.nav_player_detail)
+        }
     }
 
     private fun setupAppNavigation() {
@@ -49,7 +53,10 @@ class MainActivity : AppCompatActivity() {
         mainNavController.addOnDestinationChangedListener { navController, destination, _ ->
             if (previousNavigation?.id == destination.id) return@addOnDestinationChangedListener
             lifecycleScope.launch(Main) {
-                main_bottom_navigation.visibility = (destination.id != R.id.nav_auth).asVisibility()
+                main_bottom_navigation.visibility =
+                    (destination.id != R.id.nav_auth).asVisibility()
+                main_progress_container.visibility =
+                    (destination.id != R.id.nav_player_detail).asVisibility()
             }
             previousNavigation = navController.currentDestination
         }
@@ -145,7 +152,8 @@ class MainActivity : AppCompatActivity() {
     private fun onPlayerStateUpdate(playerState: PlayerState) {
         playbackTimerJob?.cancel("Player state updated")
         with(playerState.track) {
-            main_currently_container.visibility = isPodcast.asVisibility()
+            if (mainNavController.currentDestination?.id != R.id.nav_player_detail)
+                main_progress_container.visibility = isPodcast.asVisibility()
             if (!isPodcast) return
             main_current_title.text = this.name
         }
@@ -174,16 +182,18 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch(IO) {
             while (isActive) {
                 withContext(Main) {
-                    main_current_progress.progress += 1
+                    main_current_progress.progress += PROGRESS_INCREMENT
                     main_current_playback.text =
                         "${main_current_progress.progress.secondsToReadable()}/${main_current_progress.max.secondsToReadable()}"
                 }
-                delay(1000)
+                delay(SECOND_DELAY)
             }
         }.also { playbackTimerJob = it }
     }
 
     companion object {
         private const val TAG = "MainActivity"
+        private const val PROGRESS_INCREMENT = 1
+        private const val SECOND_DELAY = 1000L
     }
 }

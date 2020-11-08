@@ -16,7 +16,7 @@
         app:menu="@menu/navigation_items" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/main_currently_container"
+        android:id="@+id/main_progress_container"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:background="@color/navigation_color"
@@ -89,7 +89,7 @@
         android:name="androidx.navigation.fragment.NavHostFragment"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@id/main_currently_container"
+        app:layout_constraintBottom_toTopOf="@id/main_progress_container"
         app:layout_constraintTop_toTopOf="parent"
         app:navGraph="@navigation/main_navigation" />
 

@@ -18,4 +18,5 @@
     <dimen name="divider_height">2dp</dimen>
     <dimen name="search_view_height">60dp</dimen>
     <dimen name="view_holder_search_height">80dp</dimen>
+    <dimen name="big_progress_bar_height">20dp</dimen>
 </resources>

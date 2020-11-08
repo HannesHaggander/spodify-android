@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/player_detail_image"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHeight_default="percent"
+        app:layout_constraintHeight_percent="0.4"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.2" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/player_detail_title"
+        style="@style/spodify.text.regular"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ellipsize="marquee"
+        android:padding="@dimen/medium_padding"
+        android:singleLine="true"
+        app:layout_constraintTop_toBottomOf="@id/player_detail_image" />
+
+    <androidx.appcompat.widget.AppCompatSeekBar
+        android:id="@+id/player_detail_progress_bar"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/big_progress_bar_height"
+        android:progressTint="@color/white"
+        android:secondaryProgressTint="@color/colorPrimary"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/player_detail_title"
+        app:layout_constraintWidth_default="percent"
+        app:layout_constraintWidth_percent="0.9" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/player_detail_current_time"
+        style="@style/spodify.text.regular"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/small_padding"
+        app:layout_constraintStart_toStartOf="@id/player_detail_progress_bar"
+        app:layout_constraintTop_toBottomOf="@id/player_detail_progress_bar" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/player_detail_total_time"
+        style="@style/spodify.text.regular"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/small_padding"
+        android:textAlignment="textEnd"
+        app:layout_constraintEnd_toEndOf="@id/player_detail_progress_bar"
+        app:layout_constraintTop_toBottomOf="@id/player_detail_progress_bar" />
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/player_detail_progress_bar">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/player_detail_play_pause"
+            android:layout_width="@dimen/button_square_size"
+            android:layout_height="@dimen/button_square_size"
+            android:src="@drawable/ic_play_circle" />
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
