@@ -8,15 +8,19 @@
         android:id="@+id/search_input"
         android:layout_width="match_parent"
         android:layout_height="@dimen/search_view_height"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        android:background="@color/navigation_color"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:iconifiedByDefault="false"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:queryHint="Search Here" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/search_results_recycler"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginBottom="@dimen/medium_padding"
         android:clipToPadding="false"
-        android:paddingTop="@dimen/medium_padding"
+        android:paddingTop="@dimen/big_padding"
+        android:paddingBottom="@dimen/big_padding"
         app:layout_constraintBottom_toTopOf="@id/search_input"
         app:layout_constraintTop_toTopOf="parent" />
 

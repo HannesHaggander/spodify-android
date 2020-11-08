@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.observe
 import androidx.navigation.fragment.DialogFragmentNavigatorDestinationBuilder
@@ -17,6 +18,7 @@ import com.towerowl.spodify.misc.App
 import kotlinx.android.synthetic.main.fragment_search.*
 import kotlinx.android.synthetic.main.view_holder_search_episode.view.*
 import kotlinx.android.synthetic.main.view_holder_search_show.view.*
+import kotlinx.android.synthetic.main.view_holder_search_title.view.*
 
 class SearchFragment : Fragment() {
 
@@ -36,10 +38,23 @@ class SearchFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setupSearchResultsListener()
         setupRecycler()
-        App.instance()
-            .viewModels
-            .searchViewModel()
-            .search("anders och måns", 0)
+        setupSearch()
+    }
+
+    private fun setupSearch() {
+        search_input.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return false
+            }
+
+            override fun onQueryTextChange(query: String?): Boolean {
+                App.instance()
+                    .viewModels
+                    .searchViewModel()
+                    .search(query.orEmpty(), 0)
+                return true
+            }
+        })
     }
 
     private fun setupRecycler() {
@@ -60,24 +75,36 @@ class SearchFragment : Fragment() {
             .searchResults
             .observe(viewLifecycleOwner) { results ->
                 mutableListOf<SearchResultsItem>().apply {
-                    addAll(results.episodes?.items?.map { episode ->
+                    results.shows?.items?.map { show ->
+                        SearchResultsItem(
+                            href = show.href,
+                            title = show.name,
+                            imageUrl = show.images.firstOrNull()?.url,
+                            type = SearchType.SHOW
+                        )
+                    }.orEmpty().also { shows ->
+                        if (shows.isEmpty()) return@also
+                        SearchResultsItem(
+                            title = getString(R.string.shows),
+                            type = SearchType.TITLE
+                        ).also { add(it) }
+                        addAll(shows)
+                    }
+                    results.episodes?.items?.map { episode ->
                         SearchResultsItem(
                             href = episode.href,
                             title = episode.name,
                             imageUrl = episode.images.firstOrNull()?.url,
                             type = SearchType.EPISODE
                         )
-                    }.orEmpty())
-                    addAll(
-                        results.shows?.items?.map { show ->
-                            SearchResultsItem(
-                                href = show.href,
-                                title = show.name,
-                                imageUrl = show.images.firstOrNull()?.url,
-                                type = SearchType.SHOW
-                            )
-                        }.orEmpty()
-                    )
+                    }.orEmpty().also { episodes ->
+                        if (episodes.isEmpty()) return@also
+                        SearchResultsItem(
+                            title = getString(R.string.episodes),
+                            type = SearchType.TITLE
+                        ).also { add(it) }
+                        addAll(episodes)
+                    }
                 }.run { resultsAdapter.items = this }
             }
     }
@@ -106,6 +133,10 @@ class SearchResultsAdapter(private val onItemClick: (SearchResultsItem) -> Unit)
                     inflater.inflate(R.layout.view_holder_search_episode, parent, false)
                         .run { return SearchResultEpisodeViewHolder(this) }
                 }
+                SearchType.TITLE.ordinal -> {
+                    inflater.inflate(R.layout.view_holder_search_title, parent, false)
+                        .run { return SearchResultsTitle(this) }
+                }
                 else -> throw(Exception("Unhandled search type ordinal"))
             }
         }
@@ -121,6 +152,7 @@ class SearchResultsAdapter(private val onItemClick: (SearchResultsItem) -> Unit)
             when (holder) {
                 is SearchResultShowViewHolder -> holder.setData(this)
                 is SearchResultEpisodeViewHolder -> holder.setData(this)
+                is SearchResultsTitle -> holder.itemView.search_title_text.text = this.title
                 else -> throw Exception("Unexpected search result view holder")
             }
         }
@@ -149,14 +181,17 @@ class SearchResultEpisodeViewHolder(v: View) : RecyclerView.ViewHolder(v) {
     }
 }
 
+class SearchResultsTitle(v: View) : RecyclerView.ViewHolder(v)
+
 data class SearchResultsItem(
-    val href: String,
+    val href: String = "",
     val title: String,
-    val imageUrl: String?,
+    val imageUrl: String? = null,
     val type: SearchType
 )
 
 enum class SearchType {
     SHOW,
-    EPISODE
+    EPISODE,
+    TITLE
 }

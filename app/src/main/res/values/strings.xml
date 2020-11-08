@@ -9,4 +9,6 @@
     <string name="title_home">Home</string>
     <string name="title_search">Search</string>
     <string name="title_queue">Queue</string>
+    <string name="episodes">Episodes</string>
+    <string name="shows">Shows</string>
 </resources>
