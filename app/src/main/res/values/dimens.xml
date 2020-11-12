@@ -7,7 +7,7 @@
     <dimen name="loading_height">240dp</dimen>
     <dimen name="medium_padding">10dp</dimen>
     <dimen name="show_card_radius">20dp</dimen>
-    <dimen name="episode_item_height">120dp</dimen>
+    <dimen name="episode_item_height">140dp</dimen>
     <dimen name="button_square_size">80dp</dimen>
     <dimen name="small_padding">5dp</dimen>
     <dimen name="small_margin">5dp</dimen>

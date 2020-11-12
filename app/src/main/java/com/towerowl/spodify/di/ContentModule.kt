@@ -1,8 +1,10 @@
 package com.towerowl.spodify.di
 
 import com.towerowl.spodify.data.AuthenticationDao
+import com.towerowl.spodify.data.QueueDao
 import com.towerowl.spodify.repositories.AuthenticationRepository
 import com.towerowl.spodify.repositories.ContentRetriever
+import com.towerowl.spodify.repositories.QueueRepository
 import com.towerowl.spodify.repositories.SpotifyRepository
 import dagger.Module
 import dagger.Provides
@@ -25,4 +27,12 @@ class ContentModule {
                 .also { authenticationRepository = it }
         }
 
+    @Volatile
+    private var queueRepository: QueueRepository? = null
+
+    @Provides
+    fun provideQueueRepository(queueDao: QueueDao): QueueRepository =
+        queueRepository ?: synchronized(this) {
+            queueRepository ?: QueueRepository(queueDao).also { queueRepository = it }
+        }
 }

@@ -9,4 +9,7 @@ class DatabaseModule(private val appDatabase: AppDatabase) {
 
     @Provides
     fun provideAuthenticationDao() = appDatabase.authenticationDao()
+
+    @Provides
+    fun provideQueueDao() = appDatabase.queueDao()
 }

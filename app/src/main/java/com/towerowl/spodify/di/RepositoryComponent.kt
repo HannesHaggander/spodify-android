@@ -3,6 +3,7 @@ package com.towerowl.spodify.di
 import com.towerowl.spodify.data.AuthenticationDao
 import com.towerowl.spodify.repositories.AuthenticationRepository
 import com.towerowl.spodify.repositories.ContentRetriever
+import com.towerowl.spodify.repositories.QueueRepository
 import com.towerowl.spodify.repositories.SpotifyRepository
 import dagger.Component
 import dagger.Module
@@ -16,5 +17,8 @@ interface RepositoryComponent {
 
     @Singleton
     fun authenticationRepository(): AuthenticationRepository
+
+    @Singleton
+    fun queueRepository(): QueueRepository
 }
 

@@ -4,8 +4,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -13,14 +16,19 @@ import com.bumptech.glide.Glide
 import com.spotify.protocol.client.Subscription
 import com.spotify.protocol.types.PlayerState
 import com.towerowl.spodify.R
+import com.towerowl.spodify.data.QueueData
 import com.towerowl.spodify.data.api.Episode
 import com.towerowl.spodify.data.api.Show
 import com.towerowl.spodify.ext.asVisibility
 import com.towerowl.spodify.misc.App
 import kotlinx.android.synthetic.main.fragment_show_detail.*
 import kotlinx.android.synthetic.main.view_holder_episode_item.view.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class ShowOverviewFragment : Fragment() {
+
+    private var uriQueue = listOf<QueueData>()
 
     private val episodeAdapter: EpisodeAdapter by lazy {
         EpisodeAdapter(
@@ -29,6 +37,23 @@ class ShowOverviewFragment : Fragment() {
             },
             onPlayClick = { episode ->
                 App.instance().spotifyAppRemote?.playerApi?.play(episode.uri)
+            },
+            onEnqueueClick = { episode ->
+                App.instance().repo.queueRepository().run {
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        if (uriQueue.contains(episode.uri)) this@run.removeFromQueue(episode.uri)
+                        else this@run.addToQueue(episode.uri)
+                    }
+                }
+
+                Toast.makeText(
+                    requireContext(),
+                    if (uriQueue.contains(episode.uri)) "Removed" else "added",
+                    Toast.LENGTH_SHORT
+                ).show()
+            },
+            isInQueue = { episode ->
+                uriQueue.contains(episode.uri)
             }
         )
     }
@@ -54,6 +79,7 @@ class ShowOverviewFragment : Fragment() {
         Glide.with(this).load(show.images.first().url).into(show_overview_cover)
         setupRecycler()
         registerEpisodesObserver()
+        registerQueueObserver()
         App.instance().viewModels.showViewModel().run {
             clearEpisodes()
             getShowEpisodes(show.id)
@@ -101,6 +127,13 @@ class ShowOverviewFragment : Fragment() {
         }
     }
 
+    private fun registerQueueObserver() {
+        App.instance().repo
+            .queueRepository()
+            .getQueueLive()
+            .observe(viewLifecycleOwner, Observer { queue -> uriQueue = queue })
+    }
+
     private fun registerPlayStateObserver() {
         App.instance().spotifyAppRemote?.run {
             playerApi.subscribeToPlayerState().setEventCallback { state ->
@@ -111,7 +144,9 @@ class ShowOverviewFragment : Fragment() {
 
     inner class EpisodeAdapter(
         private val onItemClick: (Episode) -> Unit,
-        private val onPlayClick: (Episode) -> Unit
+        private val onPlayClick: (Episode) -> Unit,
+        private val onEnqueueClick: (Episode) -> Unit,
+        private val isInQueue: (Episode) -> Boolean
     ) : RecyclerView.Adapter<EpisodeViewHolder>() {
 
         var currentlyPlaying: String? = null
@@ -154,7 +189,18 @@ class ShowOverviewFragment : Fragment() {
                     ).also { color -> v.view_holder_episode_name.setTextColor(color) }
                     v.view_holder_episode_playing.visibility =
                         (currentlyPlaying == this.uri).asVisibility()
+                    v.view_holder_episode_enqueue.setImageDrawable(
+                        ContextCompat.getDrawable(
+                            requireContext(),
+                            if (isInQueue(this)) R.drawable.ic_close_thick
+                            else R.drawable.ic_plus_thick
+                        )
+                    )
                     v.view_holder_episode_play_pause.setOnClickListener { onPlayClick(this) }
+                    v.view_holder_episode_enqueue.setOnClickListener {
+                        onEnqueueClick(this)
+                        notifyItemChanged(position)
+                    }
                     v.setOnClickListener { onItemClick(this) }
                 }
             }
